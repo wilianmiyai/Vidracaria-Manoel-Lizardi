@@ -1,0 +1,11 @@
+# Robots.txt - Vidraçaria Manoel Lizardi
+# https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/sitemap.xml
+
+# Permitir CSS e JS para melhor indexação
+# O Google precisa renderizar a página corretamente
