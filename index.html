@@ -6,11 +6,26 @@
     <meta name="description" content="Vidraçaria Manoel Lizardi - Especialistas em vidros, box, espelhos, janelas e fachadas em Porto Alegre e região metropolitana. Qualidade e confiança há anos no mercado.">
     <meta name="keywords" content="vidraçaria, porto alegre, box, espelhos, janelas, fachadas, vidros, vidraçaria porto alegre">
     <meta name="author" content="Vidraçaria Manoel Lizardi">
+    <meta name="theme-color" content="#1a365d">
     
-    <!-- Open Graph / Facebook -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="Logo.png">
+    <link rel="apple-touch-icon" href="Logo.png">
+    
+    <!-- Open Graph / Redes Sociais (WhatsApp, Instagram, etc) -->
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vidracariamanoellizardi.com.br/">
     <meta property="og:title" content="Vidraçaria Manoel Lizardi - Porto Alegre RS">
-    <meta property="og:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas. Atendemos Porto Alegre e região metropolitana.">
+    <meta property="og:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas. Atendemos Porto Alegre e região metropolitana. Orçamento grátis pelo WhatsApp!">
+    <meta property="og:image" content="Logo.png">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Vidraçaria Manoel Lizardi">
+    
+    <!-- Twitter Card (também usado por outras redes) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vidraçaria Manoel Lizardi - Porto Alegre RS">
+    <meta name="twitter:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas. Orçamento grátis!">
+    <meta name="twitter:image" content="Logo.png">
     
     <title>Vidraçaria Manoel Lizardi | Porto Alegre - RS</title>
     
@@ -26,6 +41,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+
     <!-- ========================================
          HEADER / NAVEGAÇÃO
     ======================================== -->
@@ -114,15 +131,15 @@
                 <!-- Indicadores de Confiança -->
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <span class="stat-number">500+</span>
+                        <span class="stat-number" data-target="500" data-suffix="+">0</span>
                         <span class="stat-label">Projetos Realizados</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">10+</span>
+                        <span class="stat-number" data-target="10" data-suffix="+">0</span>
                         <span class="stat-label">Anos de Experiência</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">100%</span>
+                        <span class="stat-number" data-target="100" data-suffix="%">0</span>
                         <span class="stat-label">Satisfação</span>
                     </div>
                 </div>
@@ -1111,6 +1128,38 @@
     <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
         <i class="fas fa-chevron-up"></i>
     </button>
+
+    <!-- ========================================
+         BOTÕES FIXOS MOBILE
+    ======================================== -->
+    <div class="mobile-action-bar" id="mobileActionBar">
+        <a href="tel:+5551984265801" class="mobile-action-btn mobile-call">
+            <i class="fas fa-phone-alt"></i>
+            <span>Ligar</span>
+        </a>
+        <a href="https://wa.me/5551984265801?text=Olá! Gostaria de solicitar um orçamento." class="mobile-action-btn mobile-whatsapp" target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+        </a>
+    </div>
+
+    <!-- ========================================
+         LIGHTBOX PARA GALERIA
+    ======================================== -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Fechar">
+            <i class="fas fa-times"></i>
+        </button>
+        <button class="lightbox-prev" id="lightboxPrev" aria-label="Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-next" id="lightboxNext" aria-label="Próximo">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div class="lightbox-content">
+            <img src="" alt="" class="lightbox-image" id="lightboxImage">
+        </div>
+    </div>
 
     <!-- JavaScript -->
     <script src="script.js"></script>
