@@ -1,3 +1,60 @@
+// ========================================
+// FORÇAR SCROLL AO TOPO AO RECARREGAR
+// ========================================
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
+// ========================================
+// INDICADOR DE ABERTO/FECHADO
+// ========================================
+function updateBusinessStatus() {
+    const statusIndicator = document.getElementById('statusIndicator');
+    if (!statusIndicator) return;
+    
+    const now = new Date();
+    const day = now.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = hours * 60 + minutes; // Tempo em minutos
+    
+    // Horário de funcionamento: 08:00 - 19:00 (480 - 1140 minutos)
+    const openTime = 8 * 60; // 08:00
+    const closeTime = 19 * 60; // 19:00
+    
+    // Verifica se é dia de funcionamento (Segunda a Sábado = 1 a 6)
+    const isWorkDay = day >= 1 && day <= 6;
+    const isOpen = isWorkDay && currentTime >= openTime && currentTime < closeTime;
+    
+    const statusDot = statusIndicator.querySelector('.status-dot');
+    const statusText = statusIndicator.querySelector('.status-text');
+    
+    if (isOpen) {
+        statusIndicator.classList.remove('closed');
+        statusIndicator.classList.add('open');
+        statusText.textContent = 'Aberto agora';
+    } else {
+        statusIndicator.classList.remove('open');
+        statusIndicator.classList.add('closed');
+        
+        // Calcula quando vai abrir
+        if (day === 0) {
+            statusText.textContent = 'Fechado • Abre segunda 08:00';
+        } else if (day === 6 && currentTime >= closeTime) {
+            statusText.textContent = 'Fechado • Abre segunda 08:00';
+        } else if (currentTime < openTime) {
+            statusText.textContent = 'Fechado • Abre hoje às 08:00';
+        } else {
+            statusText.textContent = 'Fechado • Abre amanhã 08:00';
+        }
+    }
+}
+
+// Atualiza status ao carregar e a cada minuto
+document.addEventListener('DOMContentLoaded', updateBusinessStatus);
+setInterval(updateBusinessStatus, 60000);
+
 window.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initCounterAnimation();
@@ -180,6 +237,51 @@ document.addEventListener('DOMContentLoaded', function() {
             carrosselWrapper.addEventListener('mouseleave', startAutoPlay);
         }
         
+        // ========================================
+        // TOUCH/SWIPE SUPPORT PARA MOBILE
+        // ========================================
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let isDragging = false;
+        
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            isDragging = true;
+            stopAutoPlay();
+        }
+        
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            touchEndX = e.touches[0].clientX;
+        }
+        
+        function handleTouchEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const swipeThreshold = 50; // Mínimo de pixels para considerar swipe
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && currentIndex < totalPages - 1) {
+                    // Swipe para esquerda - próximo
+                    goToPage(currentIndex + 1);
+                } else if (diff < 0 && currentIndex > 0) {
+                    // Swipe para direita - anterior
+                    goToPage(currentIndex - 1);
+                }
+            }
+            
+            startAutoPlay();
+        }
+        
+        // Adicionar event listeners de touch
+        if (track) {
+            track.addEventListener('touchstart', handleTouchStart, { passive: true });
+            track.addEventListener('touchmove', handleTouchMove, { passive: true });
+            track.addEventListener('touchend', handleTouchEnd);
+        }
+        
         // Inicializa
         createDots();
         updateButtons();
@@ -340,14 +442,15 @@ document.addEventListener('DOMContentLoaded', function() {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('animate-fadeInUp');
+                    entry.target.classList.add('animated');
                     observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
         
-        // Elementos para animar
+        // Elementos para animar - incluindo novas seções
         const elementsToAnimate = document.querySelectorAll(
-            '.section-header, .servico-card, .avaliacao-card, .info-card, .sobre-content > *, .galeria-item'
+            '.section-header, .servico-card, .avaliacao-card, .info-card, .sobre-content > *, .galeria-item, .processo-step, .tipo-card, .faq-item, .cta-content'
         );
         
         elementsToAnimate.forEach(element => {
@@ -673,7 +776,7 @@ function initLightbox() {
     let currentIndex = 0;
     
     // Coletar todas as imagens que podem abrir no lightbox
-    const galleryImages = document.querySelectorAll('.sobre-img, .contato-img, .galeria-img');
+    const galleryImages = document.querySelectorAll('.galeria-img');
     
     galleryImages.forEach((img, index) => {
         img.style.cursor = 'pointer';
