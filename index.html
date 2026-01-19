@@ -8,13 +8,16 @@
     <meta name="author" content="Vidraçaria Manoel Lizardi">
     <meta name="theme-color" content="#1a365d">
     
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/">
+    
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="Logo.png">
     <link rel="apple-touch-icon" href="Logo.png">
     
     <!-- Open Graph / Redes Sociais (WhatsApp, Instagram, etc) -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vidracariamanoellizardi.com.br/">
+    <meta property="og:url" content="https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/">
     <meta property="og:title" content="Vidraçaria Manoel Lizardi - Porto Alegre RS">
     <meta property="og:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas. Atendemos Porto Alegre e região metropolitana. Orçamento grátis pelo WhatsApp!">
     <meta property="og:image" content="Logo.png">
@@ -29,19 +32,83 @@
     
     <title>Vidraçaria Manoel Lizardi | Porto Alegre - RS</title>
     
-    <!-- Google Fonts -->
+    <!-- Preconnect para CDNs - Acelera carregamento -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://www.instagram.com">
+    <link rel="dns-prefetch" href="https://www.instagram.com">
+    
+    <!-- Google Fonts - com display=swap para melhor performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome para ícones - defer para não bloquear renderização -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <!-- Schema.org JSON-LD - Dados Estruturados para Google -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "@id": "https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/",
+        "name": "Vidraçaria Manoel Lizardi",
+        "description": "Especialistas em vidros, box, espelhos, janelas e fachadas em Porto Alegre e região metropolitana.",
+        "url": "https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/",
+        "telephone": "+55-51-98426-5801",
+        "image": "https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/Logo.png",
+        "logo": "https://wilianmiyai.github.io/Vidra-aria-Manoel-Lizardi/Logo.png",
+        "priceRange": "$$",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Porto Alegre",
+            "addressRegion": "RS",
+            "addressCountry": "BR"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-30.0346",
+            "longitude": "-51.2177"
+        },
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "opens": "08:00",
+                "closes": "19:00"
+            }
+        ],
+        "sameAs": [
+            "https://www.instagram.com/vidracariamanoellizardi/"
+        ],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "5.0",
+            "reviewCount": "50"
+        },
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Serviços de Vidraçaria",
+            "itemListElement": [
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Box para Banheiro"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Espelhos"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Janelas e Portas"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Fachadas em Vidro"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Guarda-Corpo"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Coberturas em Vidro"}}
+            ]
+        }
+    }
+    </script>
     
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Skip Link para Acessibilidade -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
 
     <!-- ========================================
          HEADER / NAVEGAÇÃO
@@ -51,7 +118,7 @@
             <div class="header-content">
                 <!-- Logo -->
                 <a href="#home" class="logo">
-                    <img src="Logo.png" alt="Vidraçaria Manoel Lizardi" class="logo-img">
+                    <img src="Logo.png" alt="Vidraçaria Manoel Lizardi" class="logo-img" width="45" height="45">
                     <span>Vidraçaria <strong>Manoel Lizardi</strong></span>
                 </a>
                 
@@ -61,6 +128,7 @@
                         <li><a href="#home" class="nav-link active">Início</a></li>
                         <li><a href="#sobre" class="nav-link">Sobre</a></li>
                         <li><a href="#servicos" class="nav-link">Serviços</a></li>
+                        <li><a href="#como-funciona" class="nav-link">Como Funciona</a></li>
                         <li><a href="#galeria" class="nav-link">Galeria</a></li>
                         <li><a href="#avaliacoes" class="nav-link">Avaliações</a></li>
                         <li><a href="#contato" class="nav-link">Contato</a></li>
@@ -78,6 +146,7 @@
     <!-- ========================================
          HERO / HOME
     ======================================== -->
+    <main id="main-content">
     <section class="hero" id="home">
         <div class="hero-overlay"></div>
         
@@ -165,7 +234,7 @@
             <div class="sobre-content">
                 <div class="sobre-image">
                     <div class="image-frame">
-                        <img src="imagem da empresa.png" alt="Vidraçaria Manoel Lizardi - Nossa Empresa" class="sobre-img">
+                        <img src="imagem da empresa.png" alt="Vidraçaria Manoel Lizardi - Nossa Empresa" class="sobre-img" loading="lazy" width="500" height="400">
                     </div>
                     <div class="experience-badge">
                         <span class="years">10+</span>
@@ -318,6 +387,227 @@
                         Solicitar Orçamento <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         COMO FUNCIONA - PROCESSO DE TRABALHO
+    ======================================== -->
+    <section class="section como-funciona" id="como-funciona">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Processo Simples</span>
+                <h2 class="section-title">Como Funciona</h2>
+                <p class="section-description">
+                    Do primeiro contato à instalação final, tornamos tudo fácil e transparente para você.
+                </p>
+            </div>
+            
+            <div class="processo-timeline">
+                <!-- Etapa 1 -->
+                <div class="processo-step" data-step="1">
+                    <div class="step-icon">
+                        <i class="fab fa-whatsapp"></i>
+                        <span class="step-number">1</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Entre em Contato</h3>
+                        <p>Envie uma mensagem pelo WhatsApp com fotos e detalhes do que você precisa. Respondemos rapidamente!</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 2 -->
+                <div class="processo-step" data-step="2">
+                    <div class="step-icon">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span class="step-number">2</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Visita Técnica Gratuita</h3>
+                        <p>Agendamos uma visita para tirar medidas exatas e avaliar as condições do local. Sem custo!</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 3 -->
+                <div class="processo-step" data-step="3">
+                    <div class="step-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span class="step-number">3</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Orçamento Detalhado</h3>
+                        <p>Você recebe um orçamento completo, transparente e sem surpresas. Preço justo garantido.</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 4 -->
+                <div class="processo-step" data-step="4">
+                    <div class="step-icon">
+                        <i class="fas fa-tools"></i>
+                        <span class="step-number">4</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Instalação Profissional</h3>
+                        <p>Nossa equipe realiza a instalação com pontualidade, cuidado e limpeza total do ambiente.</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 5 -->
+                <div class="processo-step" data-step="5">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="step-number">5</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Garantia e Suporte</h3>
+                        <p>Seu projeto entregue com garantia. Qualquer dúvida ou ajuste, estamos à disposição!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="processo-cta">
+                <a href="https://wa.me/5551984265801?text=Olá! Gostaria de iniciar um orçamento." class="btn btn-primary btn-large" target="_blank" rel="noopener">
+                    <i class="fab fa-whatsapp"></i> Começar Agora
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         TIPOS DE VIDRO - INFORMATIVO
+    ======================================== -->
+    <section class="section tipos-vidro" id="tipos-vidro">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Conheça os Materiais</span>
+                <h2 class="section-title">Tipos de Vidro</h2>
+                <p class="section-description">
+                    Trabalhamos com os melhores materiais do mercado. Entenda as características de cada tipo.
+                </p>
+            </div>
+            
+            <div class="tipos-grid">
+                <!-- Vidro Temperado -->
+                <div class="tipo-card">
+                    <div class="tipo-visual">
+                        <div class="tipo-icon-wrapper">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="tipo-badge">Mais Usado</div>
+                    </div>
+                    <h3>Vidro Temperado</h3>
+                    <p class="tipo-descricao">5x mais resistente que o vidro comum. Quando quebra, fragmenta-se em pequenos pedaços não cortantes.</p>
+                    <ul class="tipo-usos">
+                        <li><i class="fas fa-check"></i> Box para banheiro</li>
+                        <li><i class="fas fa-check"></i> Portas e janelas</li>
+                        <li><i class="fas fa-check"></i> Divisórias</li>
+                        <li><i class="fas fa-check"></i> Tampos de mesa</li>
+                    </ul>
+                    <div class="tipo-stats">
+                        <div class="tipo-stat">
+                            <span class="stat-value">5x</span>
+                            <span class="stat-label">Mais Resistente</span>
+                        </div>
+                        <div class="tipo-stat">
+                            <span class="stat-value">Seguro</span>
+                            <span class="stat-label">Fragmentação</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vidro Laminado -->
+                <div class="tipo-card">
+                    <div class="tipo-visual">
+                        <div class="tipo-icon-wrapper laminado">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="tipo-badge seguranca">Máx. Segurança</div>
+                    </div>
+                    <h3>Vidro Laminado</h3>
+                    <p class="tipo-descricao">Possui película que mantém os fragmentos unidos mesmo quando quebrado. Ideal para áreas de risco.</p>
+                    <ul class="tipo-usos">
+                        <li><i class="fas fa-check"></i> Coberturas</li>
+                        <li><i class="fas fa-check"></i> Guarda-corpos</li>
+                        <li><i class="fas fa-check"></i> Fachadas</li>
+                        <li><i class="fas fa-check"></i> Claraboias</li>
+                    </ul>
+                    <div class="tipo-stats">
+                        <div class="tipo-stat">
+                            <span class="stat-value">2+</span>
+                            <span class="stat-label">Camadas</span>
+                        </div>
+                        <div class="tipo-stat">
+                            <span class="stat-value">UV</span>
+                            <span class="stat-label">Proteção</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Espelho -->
+                <div class="tipo-card">
+                    <div class="tipo-visual">
+                        <div class="tipo-icon-wrapper espelho">
+                            <i class="fas fa-mirror"></i>
+                        </div>
+                        <div class="tipo-badge decorativo">Decorativo</div>
+                    </div>
+                    <h3>Espelhos</h3>
+                    <p class="tipo-descricao">Espelhos de alta qualidade com diversas opções de acabamento: bisotado, lapidado, com iluminação LED.</p>
+                    <ul class="tipo-usos">
+                        <li><i class="fas fa-check"></i> Banheiros</li>
+                        <li><i class="fas fa-check"></i> Quartos</li>
+                        <li><i class="fas fa-check"></i> Academias</li>
+                        <li><i class="fas fa-check"></i> Decoração</li>
+                    </ul>
+                    <div class="tipo-stats">
+                        <div class="tipo-stat">
+                            <span class="stat-value">4mm+</span>
+                            <span class="stat-label">Espessura</span>
+                        </div>
+                        <div class="tipo-stat">
+                            <span class="stat-value">LED</span>
+                            <span class="stat-label">Opcional</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vidro Insulado -->
+                <div class="tipo-card">
+                    <div class="tipo-visual">
+                        <div class="tipo-icon-wrapper insulado">
+                            <i class="fas fa-temperature-low"></i>
+                        </div>
+                        <div class="tipo-badge eficiencia">Térmico</div>
+                    </div>
+                    <h3>Vidro Insulado</h3>
+                    <p class="tipo-descricao">Duas ou mais camadas de vidro com câmara de ar. Excelente isolamento térmico e acústico.</p>
+                    <ul class="tipo-usos">
+                        <li><i class="fas fa-check"></i> Janelas</li>
+                        <li><i class="fas fa-check"></i> Fachadas</li>
+                        <li><i class="fas fa-check"></i> Escritórios</li>
+                        <li><i class="fas fa-check"></i> Ambientes climatizados</li>
+                    </ul>
+                    <div class="tipo-stats">
+                        <div class="tipo-stat">
+                            <span class="stat-value">-40%</span>
+                            <span class="stat-label">Ruído</span>
+                        </div>
+                        <div class="tipo-stat">
+                            <span class="stat-value">Econômico</span>
+                            <span class="stat-label">Energia</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tipos-nota">
+                <i class="fas fa-info-circle"></i>
+                <p>Não sabe qual vidro é ideal para o seu projeto? <a href="https://wa.me/5551984265801?text=Olá! Preciso de orientação sobre qual tipo de vidro usar." target="_blank" rel="noopener">Fale conosco</a> e ajudamos você a escolher!</p>
             </div>
         </div>
     </section>
@@ -492,8 +782,49 @@
         </div>
     </section>
     
-    <!-- Script do Instagram Embed -->
-    <script async src="https://www.instagram.com/embed.js"></script>
+    <!-- Script do Instagram Embed - Lazy Load -->
+    <script>
+        // Carrega o script do Instagram apenas quando a seção da galeria estiver visível
+        (function() {
+            let instagramLoaded = false;
+            
+            function loadInstagramEmbed() {
+                if (instagramLoaded) return;
+                instagramLoaded = true;
+                
+                const script = document.createElement('script');
+                script.src = 'https://www.instagram.com/embed.js';
+                script.async = true;
+                script.onload = function() {
+                    if (window.instgrm) {
+                        window.instgrm.Embeds.process();
+                    }
+                };
+                document.body.appendChild(script);
+            }
+            
+            // Usar Intersection Observer para detectar quando a galeria está visível
+            const galeriaSection = document.getElementById('galeria');
+            
+            if (galeriaSection && 'IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            loadInstagramEmbed();
+                            observer.disconnect();
+                        }
+                    });
+                }, {
+                    rootMargin: '200px' // Carrega 200px antes de chegar na seção
+                });
+                
+                observer.observe(galeriaSection);
+            } else {
+                // Fallback: carrega após 3 segundos se não suportar Intersection Observer
+                setTimeout(loadInstagramEmbed, 3000);
+            }
+        })();
+    </script>
 
     <!-- ========================================
          AVALIAÇÕES / DEPOIMENTOS - CARROSSEL
@@ -519,7 +850,7 @@
                 </div>
                 <span class="rating-numero">5.0</span>
                 <span class="rating-texto">Avaliação no Google</span>
-                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" class="google-logo">
+                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" class="google-logo" loading="lazy">
             </div>
             
             <!-- Carrossel de Avaliações -->
@@ -890,6 +1221,13 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <h3>Horário de Funcionamento</h3>
+                    
+                    <!-- Indicador de Aberto/Fechado -->
+                    <div class="status-indicator" id="statusIndicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Verificando...</span>
+                    </div>
+                    
                     <ul class="horarios-lista">
                         <li>
                             <span class="dia">Segunda-feira</span>
@@ -1031,12 +1369,13 @@
                 
                 <div class="contato-imagem">
                     <div class="image-frame contato-frame">
-                        <img src="fale conosco.png" alt="Fale Conosco - Vidraçaria Manoel Lizardi" class="contato-img">
+                        <img src="fale conosco.png" alt="Fale Conosco - Vidraçaria Manoel Lizardi" class="contato-img" loading="lazy" width="500" height="400">
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    </main>
 
     <!-- ========================================
          FOOTER
