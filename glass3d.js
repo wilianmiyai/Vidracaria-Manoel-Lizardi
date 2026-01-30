@@ -233,40 +233,48 @@
     // ========== ILUMINAÇÃO REALISTA ==========
     function setupLights() {
         // Luz ambiente suave
-        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        const ambient = new THREE.AmbientLight(0xffffff, isMobile ? 0.5 : 0.4);
         scene.add(ambient);
         
         // Luz principal (sol)
         const main = new THREE.DirectionalLight(0xffffff, 1.0);
         main.position.set(5, 10, 5);
-        main.castShadow = true;
-        main.shadow.mapSize.width = 2048;
-        main.shadow.mapSize.height = 2048;
-        main.shadow.camera.near = 0.5;
-        main.shadow.camera.far = 50;
-        main.shadow.bias = -0.0001;
+        main.castShadow = !isMobile; // Desativa sombras no mobile
+        if (!isMobile) {
+            main.shadow.mapSize.width = 1024; // Reduzido de 2048
+            main.shadow.mapSize.height = 1024;
+            main.shadow.camera.near = 0.5;
+            main.shadow.camera.far = 50;
+            main.shadow.bias = -0.0001;
+        }
         scene.add(main);
 
-        // Luz de preenchimento azulada
-        const fill = new THREE.DirectionalLight(0x4299e1, 0.3);
-        fill.position.set(-5, 3, -5);
-        scene.add(fill);
+        // Luz de preenchimento azulada (simplificada no mobile)
+        if (!isLowEnd) {
+            const fill = new THREE.DirectionalLight(0x4299e1, 0.3);
+            fill.position.set(-5, 3, -5);
+            scene.add(fill);
+        }
 
-        // Luz de destaque quente
-        const rim = new THREE.SpotLight(0xffa500, 0.6);
-        rim.position.set(0, 8, -3);
-        rim.angle = Math.PI / 4;
-        rim.penumbra = 0.5;
-        scene.add(rim);
+        // Luz de destaque quente (desativada no mobile)
+        if (!isMobile) {
+            const rim = new THREE.SpotLight(0xffa500, 0.6);
+            rim.position.set(0, 8, -3);
+            rim.angle = Math.PI / 4;
+            rim.penumbra = 0.5;
+            scene.add(rim);
+        }
 
-        // Luz que segue o mouse para reflexos dinâmicos
-        mouseLight = new THREE.PointLight(0xffffff, 0.6, 10);
+        // Luz que segue o mouse para reflexos dinâmicos (simplificada no mobile)
+        mouseLight = new THREE.PointLight(0xffffff, isMobile ? 0.4 : 0.6, isMobile ? 6 : 10);
         mouseLight.position.set(0, 0, 4);
         scene.add(mouseLight);
         
-        // Hemisphere light para iluminação natural
-        const hemi = new THREE.HemisphereLight(0x87CEEB, 0x1a365d, 0.3);
-        scene.add(hemi);
+        // Hemisphere light para iluminação natural (desativada em low-end)
+        if (!isLowEnd) {
+            const hemi = new THREE.HemisphereLight(0x87CEEB, 0x1a365d, 0.3);
+            scene.add(hemi);
+        }
     }
 
     function setNightMode(enabled) {
@@ -378,19 +386,26 @@
 
     // ========== REFLEXOS REALISTAS ==========
     function createSparkles() {
+        // Desativar sparkles em dispositivos low-end
+        if (isLowEnd) {
+            sparkles = null;
+            return;
+        }
+        
         // Criar reflexo de luz na superfície (specular highlight)
         const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 128;
+        canvas.width = canvas.height = isMobile ? 64 : 128; // Menor no mobile
         const ctx = canvas.getContext('2d');
+        const size = canvas.width;
         
         // Gradiente para reflexo suave
-        const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 60);
+        const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2 - 4);
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
         gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.1)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 128, 128);
+        ctx.fillRect(0, 0, size, size);
         
         const texture = new THREE.CanvasTexture(canvas);
         const reflectMat = new THREE.MeshBasicMaterial({
@@ -410,6 +425,9 @@
 
     function updateSparkles() {
         if (!sparkles || !glass || !glass.visible || !mouseLight) return;
+        
+        // No mobile, atualizar menos frequentemente
+        if (isMobile && frameCount % 2 !== 0) return;
         
         // Mover o reflexo baseado na posição da luz do mouse
         const lightPos = mouseLight.position;
@@ -791,15 +809,26 @@
         const geo = new THREE.BoxGeometry(2.5, 3, thickness);
         
         // Material ULTRA realista baseado no tipo
+        // No mobile/low-end, usar materiais mais simples
         let mat;
         
-        if (type === 'espelho') {
+        if (isLowEnd) {
+            // Material simplificado para dispositivos fracos
+            mat = new THREE.MeshStandardMaterial({
+                color: cfg.tint || cfg.color,
+                transparent: true,
+                opacity: cfg.opacity + 0.2,
+                roughness: cfg.roughness + 0.1,
+                metalness: type === 'espelho' ? 0.9 : 0.1,
+                side: THREE.DoubleSide
+            });
+        } else if (type === 'espelho') {
             // Espelho - altamente reflexivo com borda visível
             mat = new THREE.MeshPhysicalMaterial({
                 color: 0xCCDDEE,
                 metalness: 0.95,
                 roughness: 0.02,
-                envMapIntensity: 1.5,
+                envMapIntensity: isMobile ? 1.0 : 1.5,
                 clearcoat: 1.0,
                 clearcoatRoughness: 0.0,
                 reflectivity: 0.9
@@ -812,10 +841,10 @@
                 opacity: cfg.opacity,
                 roughness: cfg.roughness,
                 metalness: 0.0,
-                transmission: 0.4,
+                transmission: isMobile ? 0.3 : 0.4,
                 thickness: 0.3,
                 ior: 1.5,
-                clearcoat: 0.3,
+                clearcoat: isMobile ? 0.2 : 0.3,
                 side: THREE.DoubleSide
             });
         } else {
@@ -827,23 +856,23 @@
                 roughness: cfg.roughness,
                 metalness: 0.1,
                 
-                // Propriedades de vidro
-                transmission: 0.7,
+                // Propriedades de vidro (simplificadas no mobile)
+                transmission: isMobile ? 0.5 : 0.7,
                 thickness: thickness * 3,
                 ior: 1.5,
                 
-                clearcoat: 1.0,
+                clearcoat: isMobile ? 0.6 : 1.0,
                 clearcoatRoughness: 0.05,
                 reflectivity: 0.3,
                 
                 side: THREE.DoubleSide,
-                envMapIntensity: 0.8
+                envMapIntensity: isMobile ? 0.5 : 0.8
             });
         }
 
         glass = new THREE.Mesh(geo, mat);
-        glass.castShadow = true;
-        glass.receiveShadow = true;
+        glass.castShadow = !isMobile; // Desativar sombras no mobile
+        glass.receiveShadow = !isMobile;
         glass.position.y = 0.5;
 
         // Bordas verdes realistas (borda do vidro - característica real)
@@ -884,19 +913,21 @@
         glass.add(edgeRight);
 
         // Textura fantasia - padrão martelado realista
-        if (type === 'fantasia') {
+        if (type === 'fantasia' && !isLowEnd) { // Desativar textura complexa em low-end
             const canvas = document.createElement('canvas');
-            canvas.width = canvas.height = 512;
+            const texSize = isMobile ? 256 : 512; // Menor no mobile
+            canvas.width = canvas.height = texSize;
             const ctx = canvas.getContext('2d');
             
             // Fundo
             ctx.fillStyle = '#f8f8f8';
-            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillRect(0, 0, texSize, texSize);
             
-            // Padrão martelado
-            for (let i = 0; i < 200; i++) {
-                const x = Math.random() * 512;
-                const y = Math.random() * 512;
+            // Padrão martelado - menos iterações no mobile
+            const iterations = isMobile ? 80 : 200;
+            for (let i = 0; i < iterations; i++) {
+                const x = Math.random() * texSize;
+                const y = Math.random() * texSize;
                 const r = Math.random() * 25 + 10;
                 
                 const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
@@ -933,9 +964,13 @@
 
     // ========== PARTÍCULAS DE POEIRA ==========
     function createDust(pos, intensity) {
-        for (let i = 0; i < 40 * intensity; i++) {
+        // Desativar poeira no mobile para performance
+        if (isMobile) return;
+        
+        const dustCount = Math.min(40 * intensity, isLowEnd ? 10 : 25); // Limitar quantidade
+        for (let i = 0; i < dustCount; i++) {
             const dust = new THREE.Mesh(
-                new THREE.SphereGeometry(Math.random() * 0.02 + 0.01, 4, 4),
+                new THREE.SphereGeometry(Math.random() * 0.02 + 0.01, 3, 3), // Menos segmentos
                 new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })
             );
             dust.position.copy(pos);
@@ -1549,35 +1584,37 @@
         if ('IntersectionObserver' in window) {
             const visibilityObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (!animationId) animate();
-                    } else {
-                        if (animationId) {
-                            cancelAnimationFrame(animationId);
-                            animationId = null;
-                        }
-                    }
+                    isPaused = !entry.isIntersecting;
                 });
             }, { threshold: 0.1 });
             
             visibilityObserver.observe(container);
         }
+        
+        // Também pausar quando a aba não está ativa
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                isPaused = true;
+            }
+        });
     }
 
     // ========== ANIMAÇÃO ==========
     let frameCount = 0;
     let lastTime = 0;
-    const targetFPS = isMobile ? 30 : 60; // Limitar FPS no mobile
+    const targetFPS = isLowEnd ? 24 : (isMobile ? 30 : 60); // Limitar FPS ainda mais em low-end
     const frameInterval = 1000 / targetFPS;
+    let isPaused = false; // Para pausar quando não visível
     
     function animate(currentTime) {
         animationId = requestAnimationFrame(animate);
         
-        // Throttle de FPS no mobile
-        if (isMobile) {
-            if (currentTime - lastTime < frameInterval) return;
-            lastTime = currentTime;
-        }
+        // Pausar quando não visível
+        if (isPaused) return;
+        
+        // Throttle de FPS em todos os dispositivos para economia de bateria
+        if (currentTime - lastTime < frameInterval) return;
+        lastTime = currentTime;
         
         frameCount++;
         
