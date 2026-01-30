@@ -3,152 +3,1326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Quebra de Vidros 3D - Vidraçaria</title>
-    <link rel="stylesheet" href="simulacao.css">
-</head>
-<body>
-    <div id="container">
-        <canvas id="canvas3d"></canvas>
-        
-        <!-- Painel de Controles -->
-        <div id="controls-panel">
-            <h2>🔬 Simulador de Vidros</h2>
-            
-            <a href="index.html" class="btn-back">←</a>
-            
-            <div class="control-group">
-                <label for="glass-type">Tipo de Vidro:</label>
-                <!-- Select nativo (desktop) -->
-                <select id="glass-type" class="desktop-select">
-                    <option value="temperado">Temperado</option>
-                    <option value="laminado">Laminado</option>
-                    <option value="fantasia">Fantasia</option>
-                    <option value="espelho">Espelho</option>
-                </select>
-                <!-- Dropdown customizado (mobile) - abre pra cima -->
-                <div class="custom-dropdown mobile-only">
-                    <button type="button" class="dropdown-toggle" id="dropdown-toggle">
-                        <span id="dropdown-selected">Temperado</span>
-                        <span class="dropdown-arrow">▲</span>
-                    </button>
-                    <ul class="dropdown-menu" id="dropdown-menu">
-                        <li data-value="temperado" class="selected">Temperado</li>
-                        <li data-value="laminado">Laminado</li>
-                        <li data-value="fantasia">Fantasia</li>
-                        <li data-value="espelho">Espelho</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <label for="quality-select">Qualidade:</label>
-                <select id="quality-select">
-                    <option value="low" selected>🟢 Baixa (Rápido)</option>
-                    <option value="medium">🟡 Média</option>
-                    <option value="high">🔴 Alta (Lento)</option>
-                </select>
-            </div>
-            
-            <div class="control-group buttons">
-                <button id="btn-break" class="btn-primary">Quebrar</button>
-                <button id="btn-reset" class="btn-secondary">Reset</button>
-            </div>
-            
-            <div class="control-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="slow-motion">
-                    <span class="checkmark"></span>
-                    🐢 Slow Motion
-                </label>
-            </div>
-            
-            <div class="control-group">
-                <label for="impact-intensity">Intensidade do Impacto:</label>
-                <input type="range" id="impact-intensity" min="0.5" max="2.5" step="0.1" value="1.0">
-                <span id="intensity-value">1.0x</span>
-            </div>
-            
-            <!-- Box de Risco -->
-            <div id="risk-box" class="risk-safe">
-                <div class="risk-header">
-                    <span class="risk-icon">✅</span>
-                    <span class="risk-level">SEGURO</span>
-                </div>
-                <ul class="risk-bullets">
-                    <li>Fragmenta em pequenos cubos sem bordas cortantes</li>
-                    <li>Recomendado para boxes de banheiro e portas</li>
-                </ul>
-            </div>
-        </div>
-        
-        <!-- Indicador de Loading -->
-        <div id="loading">
-            <div class="spinner"></div>
-            <p>Carregando simulação...</p>
-        </div>
-        
-        <!-- Info de Performance -->
-        <div id="perf-info">
-            <span id="fps">60 FPS</span>
-            <span id="render-mode">REALTIME</span>
-        </div>
-    </div>
+    <meta name="description" content="Vidraçaria Manoel Lizardi - Especialistas em vidros, box, espelhos, janelas e fachadas em Porto Alegre e região metropolitana. Qualidade e confiança há mais de 30 anos no mercado. Atendimento a domicílio e online.">
+    <meta name="keywords" content="vidraçaria, porto alegre, box, espelhos, janelas, fachadas, vidros, vidraçaria porto alegre">
+    <meta name="author" content="Vidraçaria Manoel Lizardi">
+    <meta name="theme-color" content="#1a365d">
     
-    <!-- Importmap para Three.js via CDN -->
-    <script type="importmap">
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="Logo.png">
+    <link rel="apple-touch-icon" href="Logo.png">
+    
+    <!-- Open Graph / Redes Sociais (WhatsApp, Instagram, etc) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/">
+    <meta property="og:title" content="Vidraçaria Manoel Lizardi - Porto Alegre RS">
+    <meta property="og:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas há mais de 30 anos. Atendemos Porto Alegre e região metropolitana. Orçamento grátis pelo WhatsApp!">
+    <meta property="og:image" content="Logo.png">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Vidraçaria Manoel Lizardi">
+    
+    <!-- Twitter Card (também usado por outras redes) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vidraçaria Manoel Lizardi - Porto Alegre RS">
+    <meta name="twitter:description" content="Especialistas em vidros, box, espelhos, janelas e fachadas. Orçamento grátis!">
+    <meta name="twitter:image" content="Logo.png">
+    
+    <title>Vidraçaria Manoel Lizardi | Porto Alegre - RS</title>
+    
+    <!-- Preconnect para CDNs - Acelera carregamento -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://www.instagram.com">
+    <link rel="dns-prefetch" href="https://www.instagram.com">
+    
+    <!-- Google Fonts - com display=swap para melhor performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome para ícones - defer para não bloquear renderização -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+        
+        // Rastrear cliques no WhatsApp
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[href*="wa.me"]');
+            if (link) {
+                gtag('event', 'whatsapp_click', {
+                    'event_category': 'contato',
+                    'event_label': link.textContent.trim() || 'WhatsApp',
+                    'value': 1
+                });
+            }
+        });
+        
+        // Rastrear cliques nos serviços
+        document.addEventListener('click', function(e) {
+            const servico = e.target.closest('.servico-card');
+            if (servico) {
+                const titulo = servico.querySelector('h3')?.textContent || 'Serviço';
+                gtag('event', 'servico_interesse', {
+                    'event_category': 'servicos',
+                    'event_label': titulo,
+                    'value': 1
+                });
+            }
+        });
+        
+        // Rastrear interação com vidro 3D
+        document.addEventListener('click', function(e) {
+            const glassBtn = e.target.closest('.glass-btn');
+            if (glassBtn) {
+                gtag('event', 'vidro_3d_selecionado', {
+                    'event_category': '3d_interativo',
+                    'event_label': glassBtn.dataset.glass || 'vidro',
+                    'value': 1
+                });
+            }
+        });
+    </script>
+    
+    <!-- Schema.org JSON-LD - Dados Estruturados para Google -->
+    <script type="application/ld+json">
     {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "@id": "https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/",
+        "name": "Vidraçaria Manoel Lizardi",
+        "description": "Especialistas em vidros, box, espelhos, janelas e fachadas em Porto Alegre e região metropolitana há mais de 30 anos. Atendimento a domicílio e online.",
+        "url": "https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/",
+        "telephone": "+55-51-98426-5801",
+        "image": "https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/Logo.png",
+        "logo": "https://wilianmiyai.github.io/Vidracaria-Manoel-Lizardi/Logo.png",
+        "priceRange": "$$",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Porto Alegre",
+            "addressRegion": "RS",
+            "addressCountry": "BR"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-30.0346",
+            "longitude": "-51.2177"
+        },
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                "opens": "08:00",
+                "closes": "18:30"
+            },
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Saturday"],
+                "opens": "08:00",
+                "closes": "12:00"
+            }
+        ],
+        "sameAs": [
+            "https://www.instagram.com/vidracariamanoellizardi/"
+        ],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "5.0",
+            "reviewCount": "50"
+        },
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Serviços de Vidraçaria",
+            "itemListElement": [
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Box para Banheiro"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Espelhos Bisotê, Furados, Colados e Lapidados"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Manutenção de Sacada, Vitrine, Box e Porta com Mola"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Vidros Fantasia"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Guarda-Corpo"}},
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Janelas e Portas"}}
+            ]
         }
     }
     </script>
     
-    <script type="module" src="glass3d.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Skip Link para Acessibilidade -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+    <!-- ========================================
+         HEADER / NAVEGAÇÃO
+    ======================================== -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="#home" class="logo">
+                    <img src="Logo.png" alt="Vidraçaria Manoel Lizardi" class="logo-img" width="45" height="45">
+                    <span><strong>Vidraçaria Manoel Lizardi</strong></span>
+                </a>
+                
+                <!-- Menu de Navegação -->
+                <nav class="nav" id="nav">
+                    <ul class="nav-list">
+                        <li><a href="#home" class="nav-link active">Início</a></li>
+                        <li><a href="#sobre" class="nav-link">Sobre</a></li>
+                        <li><a href="#servicos" class="nav-link">Serviços</a></li>
+                        <li><a href="#como-funciona" class="nav-link">Como Funciona</a></li>
+                        <li><a href="#galeria" class="nav-link">Galeria</a></li>
+                        <li><a href="#avaliacoes" class="nav-link">Avaliações</a></li>
+                        <li><a href="#contato" class="nav-link">Contato</a></li>
+                    </ul>
+                </nav>
+                
+                <!-- Botão Menu Mobile -->
+                <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================
+         HERO / HOME
+    ======================================== -->
+    <main id="main-content">
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        
+        <!-- Elementos decorativos de vidro flutuantes -->
+        <div class="hero-glass-element hero-glass-1">
+            <div class="glass-shine"></div>
+        </div>
+        <div class="hero-glass-element hero-glass-2">
+            <div class="glass-shine"></div>
+        </div>
+        <div class="hero-glass-element hero-glass-3">
+            <div class="glass-shine"></div>
+        </div>
+        
+        <div class="container">
+            <div class="hero-content">
+                <!-- Indicador de Status do Negócio -->
+                <div class="hero-status" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Verificando...</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    Transformamos seus espaços com <span class="highlight">elegância em vidro</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Há mais de 30 anos trazendo qualidade, transparência e sofisticação para lares e empresas em Porto Alegre e região metropolitana. Atendimento a domicílio e online.
+                </p>
+                <div class="hero-buttons">
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de solicitar um orçamento." class="btn btn-primary" target="_blank" rel="noopener">
+                        <i class="fab fa-whatsapp"></i> Solicitar Orçamento
+                    </a>
+                    <a href="#servicos" class="btn btn-secondary">
+                        Nossos Serviços
+                    </a>
+                </div>
+                
+                <!-- Indicadores de Confiança -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="500" data-suffix="+">0</span>
+                        <span class="stat-label">Projetos Realizados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="30" data-suffix="+">0</span>
+                        <span class="stat-label">Anos de Experiência</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="100" data-suffix="%">0</span>
+                        <span class="stat-label">Satisfação</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <a href="#sobre" class="scroll-indicator">
+            <span class="mouse"></span>
+        </a>
+    </section>
+
+    <!-- ========================================
+         SOBRE A EMPRESA
+    ======================================== -->
+    <section class="section sobre" id="sobre">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Quem Somos</span>
+                <h2 class="section-title">Sobre a Vidraçaria Manoel Lizardi</h2>
+            </div>
+            
+            <div class="sobre-content">
+                <div class="sobre-image">
+                    <div class="image-frame">
+                        <img src="imagem da empresa.png" alt="Vidraçaria Manoel Lizardi - Nossa Empresa" class="sobre-img" loading="lazy" width="500" height="400">
+                    </div>
+                    <div class="experience-badge">
+                        <span class="years">30</span>
+                        <span class="text">Anos de<br>Experiência</span>
+                    </div>
+                </div>
+                
+                <div class="sobre-text">
+                    <h3>Tradição e Qualidade em Cada Projeto</h3>
+                    <p>
+                        A <strong>Vidraçaria Manoel Lizardi</strong> nasceu da paixão por transformar ambientes através da elegância e versatilidade do vidro. Localizada em Porto Alegre, somos referência em soluções em vidraçaria para residências e comércios. <strong>Atendimento exclusivo a domicílio e online.</strong>
+                    </p>
+                    <p>
+                        <strong>Especialidade em manutenção de Sacada, Vitrine, Box e Porta com mola.</strong> Nossa equipe é formada por profissionais altamente qualificados, comprometidos em entregar projetos que combinam <strong>estética, funcionalidade e segurança</strong>.
+                    </p>
+                    
+                    <div class="sobre-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Atendimento a domicílio e online</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Especialistas em manutenção</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Orçamento sem compromisso</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Garantia em todos os serviços</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SERVIÇOS
+    ======================================== -->
+    <section class="section servicos" id="servicos">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">O Que Fazemos</span>
+                <h2 class="section-title">Nossos Serviços</h2>
+                <p class="section-description">
+                    Oferecemos soluções completas em vidraçaria para atender todas as suas necessidades com excelência e profissionalismo.
+                </p>
+            </div>
+            
+            <div class="servicos-grid">
+                <!-- Serviço 1 - Box para Banheiro -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-shower"></i>
+                    </div>
+                    <h3>Box para Banheiro</h3>
+                    <p>Box em vidro temperado com acabamento premium. Modelos de correr, abrir, canto e frontal. Segurança e elegância para seu banheiro.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para box de banheiro." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 2 - Espelhos -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-square"></i>
+                    </div>
+                    <h3>Espelhos</h3>
+                    <p>Espelhos sob medida: bisotê, furados, colados, lapidados e polidos. Instalação profissional para qualquer ambiente.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para espelhos." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 3 - Janelas e Portas -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h3>Janelas e Portas</h3>
+                    <p>Janelas e portas em vidro temperado e laminado. Modelos de correr, pivotantes e blindex com máxima segurança.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para janelas e portas." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 4 - Fachadas -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Fachadas em Vidro</h3>
+                    <p>Projetos de fachadas comerciais e residenciais. Fachadas estruturadas e sistemas de envidraçamento modernos.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para fachada em vidro." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 5 - Guarda-Corpo -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-stairs"></i>
+                    </div>
+                    <h3>Guarda-Corpo</h3>
+                    <p>Guarda-corpos em vidro temperado para escadas, sacadas e mezaninos. Segurança com design moderno e sofisticado.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para guarda-corpo." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 6 - Manutenção Especializada -->
+                <div class="servico-card servico-destaque">
+                    <div class="servico-badge">Especialidade</div>
+                    <div class="servico-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Manutenção Especializada</h3>
+                    <p>Especialistas em manutenção de Sacada, Vitrine, Box e Porta com mola. Reparos e ajustes com qualidade garantida.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para manutenção." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 7 - Divisórias -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-columns"></i>
+                    </div>
+                    <h3>Divisórias</h3>
+                    <p>Divisórias de ambientes em vidro para escritórios e residências. Integração visual mantendo a privacidade necessária.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para divisórias." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Serviço 8 - Vidros Fantasia -->
+                <div class="servico-card">
+                    <div class="servico-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Vidros Fantasia</h3>
+                    <p>Instalação e reposição de vidros fantasia: Liso, Martelado, Canelado, Ártico e Mini Boreal. Variedade para seu projeto.</p>
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de um orçamento para vidros fantasia." class="servico-link" target="_blank" rel="noopener">
+                        Solicitar Orçamento <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         TIPOS DE VIDRO
+    ======================================== -->
+    <section class="section tipos-vidro" id="tipos-vidro">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Conheça os Materiais</span>
+                <h2 class="section-title">Tipos de Vidro</h2>
+                <p class="section-description">
+                    Cada tipo de vidro tem características únicas de segurança. Saiba qual é o ideal para seu projeto.
+                </p>
+            </div>
+            
+            <!-- Grid de Tipos de Vidro -->
+            <div class="tipos-grid">
+                <!-- Temperado -->
+                <div class="tipo-card">
+                    <div class="tipo-icon temperado">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="tipo-tag safe">Seguro</div>
+                    <h3>Vidro Temperado</h3>
+                    <p>5x mais resistente que o comum. Quando quebra, fragmenta-se em pequenos cubos não cortantes.</p>
+                    <ul class="tipo-features">
+                        <li><i class="fas fa-check"></i> Box de banheiro</li>
+                        <li><i class="fas fa-check"></i> Portas de vidro</li>
+                        <li><i class="fas fa-check"></i> Tampos de mesa</li>
+                    </ul>
+                    <div class="tipo-safety">
+                        <span class="tipo-safety-label">Segurança</span>
+                        <div class="tipo-safety-bar">
+                            <div class="tipo-safety-fill" style="width: 95%"></div>
+                        </div>
+                        <span class="tipo-safety-value">95%</span>
+                    </div>
+                </div>
+
+                <!-- Laminado -->
+                <div class="tipo-card featured">
+                    <div class="tipo-icon laminado">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="tipo-tag very-safe">Muito Seguro</div>
+                    <h3>Vidro Laminado</h3>
+                    <p>Duas lâminas unidas por película PVB. Mesmo quebrado, os fragmentos ficam presos - máxima segurança.</p>
+                    <ul class="tipo-features">
+                        <li><i class="fas fa-check"></i> Guarda-corpos</li>
+                        <li><i class="fas fa-check"></i> Coberturas</li>
+                        <li><i class="fas fa-check"></i> Sacadas</li>
+                    </ul>
+                    <div class="tipo-safety">
+                        <span class="tipo-safety-label">Segurança</span>
+                        <div class="tipo-safety-bar">
+                            <div class="tipo-safety-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="tipo-safety-value">100%</span>
+                    </div>
+                </div>
+
+                <!-- Fantasia -->
+                <div class="tipo-card">
+                    <div class="tipo-icon fantasia">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="tipo-tag warning">Decorativo</div>
+                    <h3>Vidro Fantasia</h3>
+                    <p>Vidros texturizados decorativos: Martelado, Canelado, Ártico. Privacidade com passagem de luz.</p>
+                    <ul class="tipo-features">
+                        <li><i class="fas fa-check"></i> Janelas</li>
+                        <li><i class="fas fa-check"></i> Divisórias</li>
+                        <li><i class="fas fa-check"></i> Portas internas</li>
+                    </ul>
+                    <div class="tipo-safety">
+                        <span class="tipo-safety-label">Segurança</span>
+                        <div class="tipo-safety-bar">
+                            <div class="tipo-safety-fill medium" style="width: 60%"></div>
+                        </div>
+                        <span class="tipo-safety-value">60%</span>
+                    </div>
+                </div>
+
+                <!-- Espelho -->
+                <div class="tipo-card">
+                    <div class="tipo-icon espelho">
+                        <i class="fas fa-square"></i>
+                    </div>
+                    <div class="tipo-tag neutral">Decorativo</div>
+                    <h3>Espelhos</h3>
+                    <p>Espelhos de alta qualidade com diversos acabamentos. Instalação profissional e segura.</p>
+                    <ul class="tipo-features">
+                        <li><i class="fas fa-check"></i> Banheiros</li>
+                        <li><i class="fas fa-check"></i> Closets</li>
+                        <li><i class="fas fa-check"></i> Academias</li>
+                    </ul>
+                    <div class="tipo-safety">
+                        <span class="tipo-safety-label">Segurança</span>
+                        <div class="tipo-safety-bar">
+                            <div class="tipo-safety-fill low" style="width: 30%"></div>
+                        </div>
+                        <span class="tipo-safety-value">30%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA para Simulação 3D -->
+            <div class="simulacao-cta">
+                <div class="simulacao-cta-content">
+                    <div class="simulacao-cta-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="simulacao-cta-text">
+                        <h3>Veja como cada vidro quebra</h3>
+                        <p>Experimente nossa simulação 3D interativa e entenda visualmente a diferença de segurança entre os tipos de vidro.</p>
+                    </div>
+                    <a href="simulacao.html" class="simulacao-cta-btn">
+                        <i class="fas fa-play-circle"></i> Abrir Simulação 3D
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         COMO FUNCIONA - PROCESSO DE TRABALHO
+    ======================================== -->
+    <section class="section como-funciona" id="como-funciona">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Processo Simples</span>
+                <h2 class="section-title">Como Funciona</h2>
+                <p class="section-description">
+                    Do primeiro contato à instalação final, tornamos tudo fácil e transparente para você.
+                </p>
+            </div>
+            
+            <div class="processo-timeline">
+                <!-- Etapa 1 -->
+                <div class="processo-step" data-step="1">
+                    <div class="step-icon">
+                        <i class="fab fa-whatsapp"></i>
+                        <span class="step-number">1</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Entre em Contato</h3>
+                        <p>Envie uma mensagem pelo WhatsApp com fotos e detalhes do que você precisa. Respondemos rapidamente!</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 2 -->
+                <div class="processo-step" data-step="2">
+                    <div class="step-icon">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span class="step-number">2</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Visita Técnica Gratuita</h3>
+                        <p>Agendamos uma visita para tirar medidas exatas e avaliar as condições do local. Sem custo!</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 3 -->
+                <div class="processo-step" data-step="3">
+                    <div class="step-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span class="step-number">3</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Orçamento Detalhado</h3>
+                        <p>Você recebe um orçamento completo, transparente e sem surpresas. Preço justo garantido.</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 4 -->
+                <div class="processo-step" data-step="4">
+                    <div class="step-icon">
+                        <i class="fas fa-tools"></i>
+                        <span class="step-number">4</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Instalação Profissional</h3>
+                        <p>Nossa equipe realiza a instalação com pontualidade, cuidado e limpeza total do ambiente.</p>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                
+                <!-- Etapa 5 -->
+                <div class="processo-step" data-step="5">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="step-number">5</span>
+                    </div>
+                    <div class="step-content">
+                        <h3>Garantia e Suporte</h3>
+                        <p>Seu projeto entregue com garantia. Qualquer dúvida ou ajuste, estamos à disposição!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         GALERIA DE PROJETOS
+    ======================================== -->
+    <section class="section galeria" id="galeria">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Nossos Projetos</span>
+                <h2 class="section-title">Galeria de Trabalhos</h2>
+                <p class="section-description">
+                    Confira alguns dos nossos projetos realizados. Cada trabalho é executado com máxima dedicação e atenção aos detalhes.
+                </p>
+            </div>
+            
+            <!-- Carrossel de Imagens -->
+            <div class="galeria-carrossel-wrapper">
+                <button class="carrossel-btn carrossel-prev" id="galeriaPrev" aria-label="Anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="galeria-carrossel" id="galeriaCarrossel">
+                    <div class="galeria-track">
+                        <div class="galeria-slide">
+                            <img src="Imagem/501744517_17944850435990336_1243086702863689101_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/533836005_17953825796990336_8679614341876440378_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/534333872_17954152436990336_2772379333561805128_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/535149397_17954152478990336_4608206996429783561_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/535548669_17954400497990336_390491056923513435_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/544982909_17956844420990336_5470155003525387690_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/558636031_17959061693990336_144014365888977449_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/560731221_17959565726990336_9031060570009702894_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/574289053_17962445555990336_3451154997112764906_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                        <div class="galeria-slide">
+                            <img src="Imagem/624330821_17971688147990336_1741481879215753585_n.webp" alt="Projeto Vidraçaria Manoel Lizardi" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="carrossel-btn carrossel-next" id="galeriaNext" aria-label="Próximo">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Indicadores do Carrossel -->
+            <div class="galeria-dots" id="galeriaDots"></div>
+            
+            <!-- Link Instagram -->
+            <div class="galeria-instagram">
+                <p>Acompanhe todos os nossos projetos no Instagram</p>
+                <a href="https://www.instagram.com/vidracariamanoellizardi/" class="btn btn-instagram" target="_blank" rel="noopener">
+                    <i class="fab fa-instagram"></i> @vidracariamanoellizardi
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         AVALIAÇÕES / DEPOIMENTOS - CARROSSEL
+    ======================================== -->
+    <section class="section avaliacoes" id="avaliacoes">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Depoimentos</span>
+                <h2 class="section-title">O Que Nossos Clientes Dizem</h2>
+                <p class="section-description">
+                    A satisfação dos nossos clientes é nossa maior conquista. Confira algumas avaliações.
+                </p>
+            </div>
+            
+            <!-- Rating Geral -->
+            <div class="rating-geral">
+                <div class="rating-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <span class="rating-numero">5.0</span>
+                <span class="rating-texto">Avaliação no Google</span>
+                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" class="google-logo" loading="lazy">
+            </div>
+            
+            <!-- Carrossel de Avaliações -->
+            <div class="avaliacoes-carrossel-wrapper">
+                <button class="carrossel-btn carrossel-prev" id="avaliacoesPrev" aria-label="Anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="avaliacoes-carrossel" id="avaliacoesCarrossel">
+                    <div class="avaliacoes-track">
+                        <!-- Avaliação 1 - Lucas Ceresa -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>LC</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Lucas Ceresa</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Serviço de extrema qualidade e preço justo. Seu Manoel é um profissional muito correto, explica o que vai fazer com detalhes e cumpre o prometido. Recomendo."
+                            </p>
+                            <span class="avaliacao-data">Há 1 mês</span>
+                        </div>
+                        
+                        <!-- Avaliação 2 - Paloma Braga -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>PB</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Paloma Braga</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Que serviço impecável! Imensamente grata e satisfeita. Em meio a uma reforma, o Sr Manoel sem sombra de dúvidas foi o profissional mais detalhista, caprichoso e pontual."
+                            </p>
+                            <span class="avaliacao-data">Há 2 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 3 - Beatriz Caldeira -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>BC</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Beatriz Caldeira</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "O trabalho do Sr. Manoel é nota 10/10! Ele tem muito conhecimento do seu ofício: diagnosticou e corrigiu erros e problemas antigos. Serviço rápido, bem feito e caprichoso."
+                            </p>
+                            <span class="avaliacao-data">Há 5 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 4 - Sandra Cd -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>SC</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Sandra Cd</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "O trabalho é feito com muito zelo, cuidando da própria instalação do box e do local, deixando tudo limpo. O preço muito bom e justo. Rápido, eficiente. Enfim adorei, recomendo!"
+                            </p>
+                            <span class="avaliacao-data">Há 6 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 5 - AGACOR -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>AG</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>AGACOR Associação</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Serviço impecável! A Vidraçaria Manoel Lizardi realizou um trabalho excelente na minha associação. Fiquei muito impressionado com o capricho e a atenção aos detalhes."
+                            </p>
+                            <span class="avaliacao-data">Há 7 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 6 - Douglas Lisboa -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>DL</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Douglas Lisboa</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Ótimo atendimento, rápido, organizado e tem soluções que resolvem a demanda. Recomendo!"
+                            </p>
+                            <span class="avaliacao-data">Há 4 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 7 - Eva Cristovam -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>EC</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Eva Cristovam</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Profissionalismo excelente, muito dedicado e educado, material de qualidade e preço bom!"
+                            </p>
+                            <span class="avaliacao-data">Há 5 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 8 - Henrique Pereira -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>HP</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Henrique Pereira</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Profissional ágil e de excelência."
+                            </p>
+                            <span class="avaliacao-data">Há 6 meses</span>
+                        </div>
+                        
+                        <!-- Avaliação 9 - Ronaldo Correa -->
+                        <div class="avaliacao-card">
+                            <div class="avaliacao-header">
+                                <div class="avaliacao-avatar">
+                                    <span>RC</span>
+                                </div>
+                                <div class="avaliacao-info">
+                                    <h4>Ronaldo Correa</h4>
+                                    <div class="avaliacao-stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <i class="fab fa-google avaliacao-google"></i>
+                            </div>
+                            <p class="avaliacao-texto">
+                                "Serviço de alta qualidade. Obrigado pela atenção!"
+                            </p>
+                            <span class="avaliacao-data">Há 7 meses</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="carrossel-btn carrossel-next" id="avaliacoesNext" aria-label="Próximo">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Indicadores do Carrossel -->
+            <div class="carrossel-dots" id="carrosselDots"></div>
+            
+            <!-- Link Google Reviews -->
+            <div class="avaliacoes-cta">
+                <a href="https://www.google.com/search?sxsrf=ANbL-n5JCc8PhUOfKxllgQiM4Bz7WTQrMA:1768818209377&kgmid=/g/11s1q3ynk1&q=Vidra%C3%A7aria+Manoel+Lizardi&shem=bdslc,ptotple,shrtsdl&shndl=30&kgs=aa28cb3102857507#lrd=0x6110d8db669ebd35:0xc14564f1fb54ae47,1,,,," class="btn btn-outline" target="_blank" rel="noopener">
+                    <i class="fab fa-google"></i> Ver Todas as Avaliações
+                </a>
+            </div>
+        </div>
+    </section>
     
-    <!-- Script para dropdown mobile customizado -->
-    <script>
-    (function() {
-        const toggle = document.getElementById('dropdown-toggle');
-        const menu = document.getElementById('dropdown-menu');
-        const selected = document.getElementById('dropdown-selected');
-        const nativeSelect = document.getElementById('glass-type');
-        
-        if (!toggle || !menu) return;
-        
-        // Abre/fecha dropdown
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            menu.classList.toggle('open');
-        });
-        
-        // Seleciona opção
-        menu.querySelectorAll('li').forEach(function(li) {
-            li.addEventListener('click', function() {
-                const value = this.dataset.value;
-                const text = this.textContent;
+    <!-- ========================================
+         FAQ - PERGUNTAS FREQUENTES
+    ======================================== -->
+    <section class="section faq" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Dúvidas</span>
+                <h2 class="section-title">Perguntas Frequentes</h2>
+                <p class="section-description">
+                    Tire suas dúvidas sobre nossos serviços. Não encontrou o que procura? Entre em contato conosco!
+                </p>
+            </div>
+            
+            <div class="faq-grid">
+                <!-- FAQ 1 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Como solicitar um orçamento?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Você pode solicitar um orçamento gratuito pelo WhatsApp (51) 98426-5801. Basta enviar uma mensagem com os detalhes do serviço desejado, medidas aproximadas e fotos do local. Respondemos rapidamente!</p>
+                    </div>
+                </div>
                 
-                // Atualiza visual
-                selected.textContent = text;
-                menu.querySelectorAll('li').forEach(function(item) {
-                    item.classList.remove('selected');
-                });
-                this.classList.add('selected');
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Vocês fazem visita para medir?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sim! Realizamos visita técnica gratuita para tirar medidas exatas e avaliar as condições do local. Isso garante um orçamento preciso e evita surpresas durante a instalação.</p>
+                    </div>
+                </div>
                 
-                // Sincroniza com select nativo
-                nativeSelect.value = value;
-                nativeSelect.dispatchEvent(new Event('change'));
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Qual o prazo de entrega e instalação?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>O prazo para todos os serviços é de <strong>07 a 12 dias</strong> após a aprovação do orçamento. Caso seja possível realizar antes, avisamos você!</p>
+                    </div>
+                </div>
                 
-                // Fecha menu
-                menu.classList.remove('open');
-            });
-        });
+                <!-- FAQ 4 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Quais formas de pagamento vocês aceitam?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Aceitamos pagamento em dinheiro, PIX, transferência bancária e cartões. Também trabalhamos com parcelamento. Consulte condições específicas no momento do orçamento.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 5 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Os vidros têm garantia?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sim! Oferecemos garantia em todos os nossos serviços e materiais. Os vidros temperados possuem certificação e seguem todas as normas de segurança da ABNT. Qualquer problema relacionado à instalação, resolvemos sem custo adicional.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 6 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Vocês atendem fora de Porto Alegre?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Sim! Atendemos toda a região metropolitana de Porto Alegre, incluindo Canoas, Gravataí, Cachoeirinha, Alvorada, Viamão, Novo Hamburgo, São Leopoldo e outras cidades. Para regiões mais distantes, consulte disponibilidade.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 7 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Qual a diferença entre vidro temperado e laminado?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p><strong>Vidro temperado:</strong> É 5x mais resistente que o vidro comum. Quando quebra, fragmenta-se em pequenos pedaços não cortantes. Ideal para box, portas e divisórias.<br><br><strong>Vidro laminado:</strong> Possui uma película que mantém os fragmentos unidos mesmo quando quebrado. Ideal para coberturas, guarda-corpos e fachadas onde há risco de queda.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 8 -->
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Quais manutenções vocês fazem?</span>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Somos <strong>especialistas em manutenção de Sacada, Vitrine, Box e Porta com mola</strong>. Realizamos troca de roldanas, ajustes, vedação, substituição de peças danificadas, regulagem de portas e reposição de vidros. São mais de 30 anos de experiência em reparos e manutenção!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         CONTATO / CTA
+    ======================================== -->
+    <section class="section contato" id="contato">
+        <div class="container">
+            <div class="contato-content">
+                <div class="contato-info">
+                    <span class="section-tag">Entre em Contato</span>
+                    <h2 class="contato-title">Solicite Seu Orçamento Gratuito</h2>
+                    <p class="contato-texto">
+                        Estamos prontos para atender você! Entre em contato pelo WhatsApp e receba um orçamento sem compromisso. Resposta rápida garantida.
+                    </p>
+                    
+                    <div class="contato-dados">
+                        <div class="contato-item">
+                            <i class="fab fa-whatsapp"></i>
+                            <div>
+                                <strong>WhatsApp</strong>
+                                <a href="https://wa.me/5551984265801">(51) 98426-5801</a>
+                            </div>
+                        </div>
+                        <div class="contato-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Atendemos</strong>
+                                <span>Porto Alegre, Canoas, Gravataí, Cachoeirinha, Alvorada, Viamão e região</span>
+                            </div>
+                        </div>
+                        <div class="contato-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>Horário</strong>
+                                <span>Segunda a Sexta: 08:00 - 18:30 | Sábado: 08:00 - 12:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de solicitar um orçamento." class="btn btn-whatsapp btn-large" target="_blank" rel="noopener">
+                        <i class="fab fa-whatsapp"></i> Chamar no WhatsApp
+                    </a>
+                </div>
+                
+                <div class="contato-diferenciais">
+                    <div class="diferencial-card">
+                        <div class="diferencial-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="diferencial-numero">30+</div>
+                        <div class="diferencial-texto">Anos de Experiência</div>
+                    </div>
+                    <div class="diferencial-card">
+                        <div class="diferencial-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="diferencial-numero"><i class="fas fa-check"></i></div>
+                        <div class="diferencial-texto">Atendimento a Domicílio</div>
+                    </div>
+                    <div class="diferencial-card">
+                        <div class="diferencial-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="diferencial-numero">Grátis</div>
+                        <div class="diferencial-texto">Orçamento sem Compromisso</div>
+                    </div>
+                    <div class="diferencial-card">
+                        <div class="diferencial-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="diferencial-numero"><i class="fas fa-check"></i></div>
+                        <div class="diferencial-texto">Especialistas em Manutenção</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </main>
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="#home" class="logo">
+                        <img src="Logo.png" alt="Vidraçaria Manoel Lizardi" class="logo-img">
+                        <span>Vidraçaria <strong>Manoel Lizardi</strong></span>
+                    </a>
+                    <p>
+                        Transformando espaços com elegância e qualidade em vidro há mais de 30 anos em Porto Alegre e região. Atendimento a domicílio e online.
+                    </p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/vidracariamanoellizardi/" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/5551984265801" target="_blank" rel="noopener" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#sobre">Sobre</a></li>
+                        <li><a href="#servicos">Serviços</a></li>
+                        <li><a href="#galeria">Galeria</a></li>
+                        <li><a href="#avaliacoes">Avaliações</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-servicos">
+                    <h4>Serviços</h4>
+                    <ul>
+                        <li><a href="#servicos">Box para Banheiro</a></li>
+                        <li><a href="#servicos">Espelhos</a></li>
+                        <li><a href="#servicos">Manutenção Especializada</a></li>
+                        <li><a href="#servicos">Vidros Fantasia</a></li>
+                        <li><a href="#servicos">Sacadas e Vitrines</a></li>
+                        <li><a href="#servicos">Portas com Mola</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contato">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li>
+                            <i class="fab fa-whatsapp"></i>
+                            <a href="https://wa.me/5551984265801">(51) 98426-5801</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Porto Alegre - RS</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>Seg a Sex: 08:00 - 18:30 | Sáb: 08:00 - 12:00</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Vidraçaria Manoel Lizardi. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         CHATBOT FAQ FLUTUANTE
+    ======================================== -->
+    <div class="chatbot-container" id="chatbot">
+        <button class="chatbot-toggle" id="chatbotToggle" aria-label="Abrir chat de dúvidas">
+            <i class="fas fa-comments"></i>
+            <span class="chatbot-badge">?</span>
+        </button>
         
-        // Fecha ao clicar fora
-        document.addEventListener('click', function() {
-            menu.classList.remove('open');
-        });
-    })();
-    </script>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="chatbot-title">
+                    <h4>Dúvidas Frequentes</h4>
+                    <span>Respostas rápidas</span>
+                </div>
+                <button class="chatbot-close" id="chatbotClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="chatbot-message bot">
+                    <p>Oi! 👋 Sou o assistente da Vidraçaria Manoel Lizardi. Em que posso te ajudar?</p>
+                </div>
+            </div>
+            
+            <div class="chatbot-questions" id="chatbotQuestions">
+                <div class="chatbot-questions-title">
+                    <i class="fas fa-question-circle"></i> Perguntas rápidas
+                </div>
+                <div class="chatbot-questions-grid">
+                    <button class="chatbot-question" data-question="orcamento">
+                        <i class="fas fa-calculator"></i> Orçamento
+                    </button>
+                    <button class="chatbot-question" data-question="prazo">
+                        <i class="fas fa-clock"></i> Prazo
+                    </button>
+                    <button class="chatbot-question" data-question="atendimento">
+                        <i class="fas fa-map-marker-alt"></i> Região
+                    </button>
+                    <button class="chatbot-question" data-question="pagamento">
+                        <i class="fas fa-credit-card"></i> Pagamento
+                    </button>
+                    <button class="chatbot-question" data-question="garantia">
+                        <i class="fas fa-shield-alt"></i> Garantia
+                    </button>
+                    <button class="chatbot-question whatsapp-btn" data-question="whatsapp">
+                        <i class="fab fa-whatsapp"></i> Falar no WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         BOTÃO FLUTUANTE WHATSAPP
+    ======================================== -->
+    <a href="https://wa.me/5551984265801?text=Olá! Gostaria de solicitar um orçamento." class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chamar no WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">Fale Conosco</span>
+    </a>
+
+    <!-- ========================================
+         BOTÃO VOLTAR AO TOPO
+    ======================================== -->
+    <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- ========================================
+         LIGHTBOX PARA GALERIA
+    ======================================== -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Fechar">
+            <i class="fas fa-times"></i>
+        </button>
+        <button class="lightbox-prev" id="lightboxPrev" aria-label="Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-next" id="lightboxNext" aria-label="Próximo">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div class="lightbox-content">
+            <img src="" alt="" class="lightbox-image" id="lightboxImage">
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
