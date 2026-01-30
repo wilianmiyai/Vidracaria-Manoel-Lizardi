@@ -211,6 +211,7 @@ button {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    position: relative;
 }
 
 .checkbox-label input:checked ~ .checkmark {
@@ -221,8 +222,13 @@ button {
 .checkbox-label input:checked ~ .checkmark::after {
     content: '✓';
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
+    line-height: 1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Range Slider */
