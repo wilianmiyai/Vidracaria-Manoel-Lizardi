@@ -16,13 +16,22 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // CONFIGURAÇÃO GLOBAL
 // ============================================
 
+// Detectar mobile
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+    || window.innerWidth < 768;
+
 const CONFIG = {
-    // Render
-    pixelRatio: Math.min(window.devicePixelRatio, 2),
+    // Render - otimizado para mobile
+    pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
     exposure: 0.55,
-    bloomStrength: 0.05,
+    bloomStrength: isMobile ? 0 : 0.05, // Desativa bloom no mobile
     bloomRadius: 0.2,
     bloomThreshold: 0.95,
+    
+    // Qualidade adaptativa
+    shadowMapSize: isMobile ? 512 : 1024,
+    antialias: !isMobile, // Desativa AA no mobile
+    enablePostProcessing: !isMobile, // Desativa pós-processamento no mobile
     
     // Física
     gravity: -9.81,
@@ -145,7 +154,7 @@ function setupRenderer() {
     
     renderer = new THREE.WebGLRenderer({
         canvas: canvas,
-        antialias: true,
+        antialias: CONFIG.antialias,
         powerPreference: 'high-performance',
         alpha: false
     });
@@ -155,8 +164,10 @@ function setupRenderer() {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = CONFIG.exposure;
+    
+    // Sombras - otimizadas para mobile
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
 }
 
 // ============================================
@@ -190,8 +201,34 @@ function setupCamera() {
 
 function setupLighting() {
     // Luz ambiente suave (reduzida)
-    const ambient = new THREE.AmbientLight(0xfff8f0, 0.25);
+    const ambient = new THREE.AmbientLight(0xfff8f0, isMobile ? 0.4 : 0.25);
     scene.add(ambient);
+    
+    // No mobile, usar iluminação simplificada
+    if (isMobile) {
+        // Apenas uma luz direcional simples
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        mainLight.position.set(1, 3, 2);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = CONFIG.shadowMapSize;
+        mainLight.shadow.mapSize.height = CONFIG.shadowMapSize;
+        mainLight.shadow.camera.near = 0.1;
+        mainLight.shadow.camera.far = 10;
+        mainLight.shadow.camera.left = -4;
+        mainLight.shadow.camera.right = 4;
+        mainLight.shadow.camera.top = 4;
+        mainLight.shadow.camera.bottom = -4;
+        scene.add(mainLight);
+        
+        // Luz de preenchimento fraca
+        const fillLight = new THREE.DirectionalLight(0xf0f5ff, 0.3);
+        fillLight.position.set(-2, 1, 1);
+        scene.add(fillLight);
+        
+        return;
+    }
+    
+    // === ILUMINAÇÃO COMPLETA (Desktop) ===
     
     // Luz principal de teto (plafon LED)
     const mainLight = new THREE.RectAreaLight(0xffffff, 3, 1.0, 0.5);
@@ -203,8 +240,8 @@ function setupLighting() {
     const ceilingLight = new THREE.PointLight(0xfff5e6, 35, 6);
     ceilingLight.position.set(0, CONFIG.boxHeight - 0.15, 0.4);
     ceilingLight.castShadow = true;
-    ceilingLight.shadow.mapSize.width = 2048;
-    ceilingLight.shadow.mapSize.height = 2048;
+    ceilingLight.shadow.mapSize.width = CONFIG.shadowMapSize;
+    ceilingLight.shadow.mapSize.height = CONFIG.shadowMapSize;
     ceilingLight.shadow.camera.near = 0.1;
     ceilingLight.shadow.camera.far = 8;
     ceilingLight.shadow.bias = -0.0001;
@@ -609,11 +646,12 @@ function setupEnvironment() {
     
     scene.add(bathroom);
     
-    // === CUBO DE REFLEXÃO ===
-    cubeRenderTarget = new THREE.WebGLCubeRenderTarget(512, {
+    // === CUBO DE REFLEXÃO (menor resolução no mobile) ===
+    const cubeResolution = isMobile ? 128 : 512;
+    cubeRenderTarget = new THREE.WebGLCubeRenderTarget(cubeResolution, {
         format: THREE.RGBAFormat,
-        generateMipmaps: true,
-        minFilter: THREE.LinearMipmapLinearFilter
+        generateMipmaps: !isMobile,
+        minFilter: isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter
     });
     cubeCamera = new THREE.CubeCamera(0.1, 20, cubeRenderTarget);
     cubeCamera.position.set(0, 0.9, 0);
@@ -629,14 +667,17 @@ async function setupTextures() {
     floorTextures = createFloorTextures();
     
     // Aplicar texturas no piso
-    const bathroom = scene.getObjectByName('bathroom');
-    const floor = bathroom?.getObjectByName('floor');
-    if (floor && floor.material) {
-        floor.material.map = floorTextures.diffuse;
-        floor.material.roughnessMap = floorTextures.roughness;
-        floor.material.normalMap = floorTextures.normal;
-        floor.material.normalScale = new THREE.Vector2(0.4, 0.4);
-        floor.material.needsUpdate = true;
+    // No mobile, pular texturas de piso para economizar memória
+    if (!isMobile) {
+        const bathroom = scene.getObjectByName('bathroom');
+        const floor = bathroom?.getObjectByName('floor');
+        if (floor && floor.material) {
+            floor.material.map = floorTextures.diffuse;
+            floor.material.roughnessMap = floorTextures.roughness;
+            floor.material.normalMap = floorTextures.normal;
+            floor.material.normalScale = new THREE.Vector2(0.4, 0.4);
+            floor.material.needsUpdate = true;
+        }
     }
     
     // Textura de rachaduras para vidro laminado
@@ -647,6 +688,11 @@ async function setupTextures() {
 }
 
 function createFloorTextures() {
+    // No mobile, retornar texturas vazias
+    if (isMobile) {
+        return { diffuse: null, roughness: null, normal: null };
+    }
+    
     const size = 1024;
     
     // Canvas para diffuse
@@ -1175,21 +1221,24 @@ function setupPostProcessing() {
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
     
-    // SMAA
-    const smaaPass = new SMAAPass(
-        window.innerWidth * CONFIG.pixelRatio,
-        window.innerHeight * CONFIG.pixelRatio
-    );
-    composer.addPass(smaaPass);
-    
-    // Bloom sutil
-    const bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        CONFIG.bloomStrength,
-        CONFIG.bloomRadius,
-        CONFIG.bloomThreshold
-    );
-    composer.addPass(bloomPass);
+    // No mobile, pular efeitos pesados
+    if (!isMobile) {
+        // SMAA
+        const smaaPass = new SMAAPass(
+            window.innerWidth * CONFIG.pixelRatio,
+            window.innerHeight * CONFIG.pixelRatio
+        );
+        composer.addPass(smaaPass);
+        
+        // Bloom sutil
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            CONFIG.bloomStrength,
+            CONFIG.bloomRadius,
+            CONFIG.bloomThreshold
+        );
+        composer.addPass(bloomPass);
+    }
     
     // Output pass
     const outputPass = new OutputPass();
@@ -2133,8 +2182,19 @@ function updatePhysics(deltaTime) {
 // LOOP DE ANIMAÇÃO
 // ============================================
 
+let mobileFrameSkip = 0;
+
 function animate() {
     requestAnimationFrame(animate);
+    
+    // No mobile, pular frames para melhorar performance
+    if (isMobile) {
+        mobileFrameSkip++;
+        if (mobileFrameSkip < 2 && !isAnimating) {
+            return; // Renderiza a cada 2 frames quando não animando
+        }
+        mobileFrameSkip = 0;
+    }
     
     const deltaTime = Math.min(clock.getDelta(), 0.1);
     
@@ -2143,7 +2203,7 @@ function animate() {
     const now = performance.now();
     if (now - lastFpsUpdate > 500) {
         fps = Math.round(frameCount / ((now - lastFpsUpdate) / 1000));
-        ui.fpsDisplay.textContent = fps + ' FPS';
+        if (ui.fpsDisplay) ui.fpsDisplay.textContent = fps + ' FPS';
         frameCount = 0;
         lastFpsUpdate = now;
     }
@@ -2168,16 +2228,20 @@ function animate() {
     updatePhysics(deltaTime);
     
     // Render
-    if (renderMode === 'ultra') {
-        // Modo ULTRA - acumular samples quando parado
+    if (renderMode === 'ultra' && !isMobile) {
+        // Modo ULTRA - acumular samples quando parado (só desktop)
         if (!isAnimating && !cameraMoving) {
             samplesAccumulated = Math.min(samplesAccumulated + 1, targetSamples);
-            ui.samplesAccumulated.textContent = samplesAccumulated;
+            if (ui.samplesAccumulated) ui.samplesAccumulated.textContent = samplesAccumulated;
         }
     }
     
-    // Renderizar
-    composer.render();
+    // Renderizar - no mobile usar render direto, no desktop usar composer
+    if (isMobile || !CONFIG.enablePostProcessing) {
+        renderer.render(scene, camera);
+    } else {
+        composer.render();
+    }
 }
 
 // ============================================
