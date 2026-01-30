@@ -112,19 +112,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
     // 2. HEADER COM EFEITO DE SCROLL
     // ========================================
+    let ticking = false;
+    
     function handleHeaderScroll() {
         if (window.scrollY > 100) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
+        ticking = false;
     }
     
     // Executa na carga inicial
     handleHeaderScroll();
     
-    // Executa no scroll
-    window.addEventListener('scroll', handleHeaderScroll);
+    // Executa no scroll com requestAnimationFrame para performance
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(handleHeaderScroll);
+            ticking = true;
+        }
+    }, { passive: true });
     
     
     // ========================================
@@ -548,7 +556,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    window.addEventListener('scroll', updateActiveLink);
+    // Throttle para limitar execuções do updateActiveLink
+    let activeLinkTicking = false;
+    window.addEventListener('scroll', function() {
+        if (!activeLinkTicking) {
+            requestAnimationFrame(function() {
+                updateActiveLink();
+                activeLinkTicking = false;
+            });
+            activeLinkTicking = true;
+        }
+    }, { passive: true });
     updateActiveLink(); // Executa na carga inicial
     
     
