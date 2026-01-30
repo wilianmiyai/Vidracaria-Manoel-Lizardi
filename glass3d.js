@@ -20,18 +20,49 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
     || window.innerWidth < 768;
 
+// Detectar PC fraco (verificar WebGL capabilities)
+let isLowEndPC = false;
+function detectLowEndPC() {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl) {
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+            // GPUs integradas comuns = PC fraco
+            const lowEndGPUs = ['Intel', 'HD Graphics', 'UHD Graphics', 'Iris', 'Mali', 'Adreno', 'PowerVR'];
+            isLowEndPC = lowEndGPUs.some(gpu => renderer.includes(gpu));
+        }
+        // Verificar memória de vídeo aproximada
+        const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        if (maxTextureSize <= 4096) isLowEndPC = true;
+    }
+    // Também considerar resolução de tela
+    if (window.innerWidth * window.innerHeight > 1920 * 1080) {
+        isLowEndPC = true; // Tela grande com GPU fraca = problema
+    }
+    return isLowEndPC;
+}
+detectLowEndPC();
+
+// Modo de qualidade
+const qualityMode = isMobile ? 'low' : (isLowEndPC ? 'medium' : 'high');
+console.log('Quality mode:', qualityMode, '| Mobile:', isMobile, '| LowEnd PC:', isLowEndPC);
+
 const CONFIG = {
-    // Render - otimizado para mobile
-    pixelRatio: isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2),
+    // Render - adaptativo por qualidade
+    pixelRatio: qualityMode === 'low' ? 1 : (qualityMode === 'medium' ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2)),
     exposure: 0.55,
-    bloomStrength: isMobile ? 0 : 0.05, // Desativa bloom no mobile
+    bloomStrength: qualityMode === 'high' ? 0.05 : 0, // Só no high
     bloomRadius: 0.2,
     bloomThreshold: 0.95,
     
     // Qualidade adaptativa
-    shadowMapSize: isMobile ? 512 : 1024,
-    antialias: !isMobile, // Desativa AA no mobile
-    enablePostProcessing: !isMobile, // Desativa pós-processamento no mobile
+    shadowMapSize: qualityMode === 'high' ? 1024 : (qualityMode === 'medium' ? 512 : 256),
+    antialias: qualityMode === 'high',
+    enablePostProcessing: qualityMode === 'high',
+    enableShadows: qualityMode !== 'low',
+    cubeMapSize: qualityMode === 'high' ? 256 : (qualityMode === 'medium' ? 128 : 64),
     
     // Física
     gravity: -9.81,
@@ -62,6 +93,46 @@ const CONFIG = {
         maxZ: 3.2
     }
 };
+
+// ============================================
+// HELPER - CRIAR MATERIAL DE VIDRO OTIMIZADO
+// ============================================
+
+function createGlassMaterial(options) {
+    // No modo low, usar material mais simples (MeshStandardMaterial)
+    if (qualityMode === 'low') {
+        return new THREE.MeshStandardMaterial({
+            color: options.color || 0xeeffee,
+            metalness: options.metalness || 0.0,
+            roughness: options.roughness || 0.1,
+            transparent: true,
+            opacity: options.opacity || 0.85,
+            side: options.side || THREE.DoubleSide,
+            envMap: options.envMap,
+            envMapIntensity: (options.envMapIntensity || 0.5) * 0.5
+        });
+    }
+    
+    // No modo medium, usar MeshPhysicalMaterial simplificado
+    if (qualityMode === 'medium') {
+        return new THREE.MeshPhysicalMaterial({
+            color: options.color || 0xeeffee,
+            metalness: options.metalness || 0.0,
+            roughness: options.roughness || 0.1,
+            transmission: (options.transmission || 0.9) * 0.7,
+            thickness: options.thickness || 5,
+            ior: options.ior || 1.5,
+            transparent: true,
+            opacity: options.opacity || 0.9,
+            side: options.side || THREE.DoubleSide,
+            envMap: options.envMap,
+            envMapIntensity: (options.envMapIntensity || 0.5) * 0.7
+        });
+    }
+    
+    // No modo high, usar todas as propriedades
+    return new THREE.MeshPhysicalMaterial(options);
+}
 
 // ============================================
 // VARIÁVEIS GLOBAIS
@@ -166,8 +237,8 @@ function setupRenderer() {
     renderer.toneMappingExposure = CONFIG.exposure;
     
     // Sombras - otimizadas para mobile
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = CONFIG.enableShadows;
+    renderer.shadowMap.type = qualityMode === 'high' ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
 }
 
 // ============================================
@@ -201,15 +272,15 @@ function setupCamera() {
 
 function setupLighting() {
     // Luz ambiente suave (reduzida)
-    const ambient = new THREE.AmbientLight(0xfff8f0, isMobile ? 0.4 : 0.25);
+    const ambient = new THREE.AmbientLight(0xfff8f0, qualityMode === 'high' ? 0.25 : 0.5);
     scene.add(ambient);
     
-    // No mobile, usar iluminação simplificada
-    if (isMobile) {
+    // No modo low/medium, usar iluminação simplificada
+    if (qualityMode !== 'high') {
         // Apenas uma luz direcional simples
         const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
         mainLight.position.set(1, 3, 2);
-        mainLight.castShadow = true;
+        mainLight.castShadow = CONFIG.enableShadows;
         mainLight.shadow.mapSize.width = CONFIG.shadowMapSize;
         mainLight.shadow.mapSize.height = CONFIG.shadowMapSize;
         mainLight.shadow.camera.near = 0.1;
@@ -646,12 +717,12 @@ function setupEnvironment() {
     
     scene.add(bathroom);
     
-    // === CUBO DE REFLEXÃO (menor resolução no mobile) ===
-    const cubeResolution = isMobile ? 128 : 512;
+    // === CUBO DE REFLEXÃO (resolução por qualidade) ===
+    const cubeResolution = CONFIG.cubeMapSize;
     cubeRenderTarget = new THREE.WebGLCubeRenderTarget(cubeResolution, {
         format: THREE.RGBAFormat,
-        generateMipmaps: !isMobile,
-        minFilter: isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter
+        generateMipmaps: qualityMode === 'high',
+        minFilter: qualityMode === 'high' ? THREE.LinearMipmapLinearFilter : THREE.LinearFilter
     });
     cubeCamera = new THREE.CubeCamera(0.1, 20, cubeRenderTarget);
     cubeCamera.position.set(0, 0.9, 0);
@@ -688,8 +759,8 @@ async function setupTextures() {
 }
 
 function createFloorTextures() {
-    // No mobile, retornar texturas vazias
-    if (isMobile) {
+    // No modo low/medium, retornar texturas vazias (economiza memória)
+    if (qualityMode !== 'high') {
         return { diffuse: null, roughness: null, normal: null };
     }
     
@@ -1010,7 +1081,7 @@ function createGlassPanel(type) {
     
     switch (type) {
         case 'temperado':
-            glassMat = new THREE.MeshPhysicalMaterial({
+            glassMat = createGlassMaterial({
                 color: 0xeeffee,
                 metalness: 0.0,
                 roughness: 0.06,
@@ -1029,7 +1100,7 @@ function createGlassPanel(type) {
             break;
             
         case 'laminado':
-            glassMat = new THREE.MeshPhysicalMaterial({
+            glassMat = createGlassMaterial({
                 color: 0xeeffee,
                 metalness: 0.0,
                 roughness: 0.05,
@@ -1046,7 +1117,7 @@ function createGlassPanel(type) {
             break;
             
         case 'fantasia':
-            glassMat = new THREE.MeshPhysicalMaterial({
+            glassMat = createGlassMaterial({
                 color: 0xf0f0f0,
                 metalness: 0.0,
                 roughness: 0.5,
@@ -1063,7 +1134,7 @@ function createGlassPanel(type) {
             break;
             
         case 'espelho':
-            glassMat = new THREE.MeshPhysicalMaterial({
+            glassMat = createGlassMaterial({
                 color: 0xd8d8d8,
                 metalness: 0.95,
                 roughness: 0.04,
@@ -1078,8 +1149,8 @@ function createGlassPanel(type) {
     
     glassPanel = new THREE.Mesh(glassGeom, glassMat);
     glassPanel.position.set(0, CONFIG.glassHeight / 2 + 0.1, 0);
-    glassPanel.castShadow = true;
-    glassPanel.receiveShadow = true;
+    glassPanel.castShadow = CONFIG.enableShadows;
+    glassPanel.receiveShadow = CONFIG.enableShadows;
     glassPanel.name = 'glassPanel';
     scene.add(glassPanel);
     
@@ -1221,8 +1292,8 @@ function setupPostProcessing() {
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
     
-    // No mobile, pular efeitos pesados
-    if (!isMobile) {
+    // Só adiciona efeitos pesados no modo high
+    if (qualityMode === 'high') {
         // SMAA
         const smaaPass = new SMAAPass(
             window.innerWidth * CONFIG.pixelRatio,
@@ -1585,12 +1656,13 @@ function breakGlass() {
 // ============================================
 
 function createTemperedFragments(impactPoint) {
-    const fragmentCount = 1200;
+    // Quantidade de fragmentos adaptativa por qualidade
+    const fragmentCount = qualityMode === 'high' ? 1200 : (qualityMode === 'medium' ? 600 : 300);
     const cubeSize = 0.012;
     
-    // Geometria e material compartilhados
+    // Geometria e material compartilhados (otimizado por qualidade)
     const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-    const material = new THREE.MeshPhysicalMaterial({
+    const material = createGlassMaterial({
         color: 0xeeffee,
         metalness: 0.0,
         roughness: 0.08,
@@ -1608,8 +1680,8 @@ function createTemperedFragments(impactPoint) {
     
     // InstancedMesh para performance
     const instancedMesh = new THREE.InstancedMesh(geometry, material, fragmentCount);
-    instancedMesh.castShadow = true;
-    instancedMesh.receiveShadow = true;
+    instancedMesh.castShadow = CONFIG.enableShadows && qualityMode === 'high';
+    instancedMesh.receiveShadow = CONFIG.enableShadows;
     instancedMesh.name = 'temperedFragments';
     scene.add(instancedMesh);
     
@@ -1816,10 +1888,13 @@ function createLaminatedCracks(impactPoint) {
 // ============================================
 
 function createFantasyFragments(impactPoint) {
-    const fragmentCount = 50 + Math.floor(Math.random() * 30);
+    // Quantidade de fragmentos adaptativa por qualidade
+    const baseCount = qualityMode === 'high' ? 50 : (qualityMode === 'medium' ? 30 : 20);
+    const randomCount = qualityMode === 'high' ? 30 : (qualityMode === 'medium' ? 15 : 10);
+    const fragmentCount = baseCount + Math.floor(Math.random() * randomCount);
     
-    // Material para fantasia
-    const baseMaterial = new THREE.MeshPhysicalMaterial({
+    // Material para fantasia (otimizado)
+    const baseMaterial = createGlassMaterial({
         color: 0xe0e0e0,
         metalness: 0.0,
         roughness: 0.55,
@@ -1843,8 +1918,8 @@ function createFantasyFragments(impactPoint) {
         const geometry = createIrregularGeometry(width, height, depth);
         
         const mesh = new THREE.Mesh(geometry, baseMaterial.clone());
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
+        mesh.castShadow = CONFIG.enableShadows && qualityMode === 'high';
+        mesh.receiveShadow = CONFIG.enableShadows;
         
         // Posição inicial
         const x = (Math.random() - 0.5) * CONFIG.glassWidth;
@@ -2182,28 +2257,33 @@ function updatePhysics(deltaTime) {
 // LOOP DE ANIMAÇÃO
 // ============================================
 
-let mobileFrameSkip = 0;
+let frameSkipCounter = 0;
+let lastRenderTime = 0;
+const targetFPS = qualityMode === 'high' ? 60 : (qualityMode === 'medium' ? 30 : 24);
+const frameInterval = 1000 / targetFPS;
 
 function animate() {
     requestAnimationFrame(animate);
     
-    // No mobile, pular frames para melhorar performance
-    if (isMobile) {
-        mobileFrameSkip++;
-        if (mobileFrameSkip < 2 && !isAnimating) {
-            return; // Renderiza a cada 2 frames quando não animando
+    const currentTime = performance.now();
+    
+    // Limitar FPS para economizar CPU/GPU
+    if (qualityMode !== 'high') {
+        if (currentTime - lastRenderTime < frameInterval && !isAnimating) {
+            return;
         }
-        mobileFrameSkip = 0;
+        lastRenderTime = currentTime;
     }
     
     const deltaTime = Math.min(clock.getDelta(), 0.1);
     
-    // Atualizar FPS
+    // Atualizar FPS e modo de qualidade
     frameCount++;
     const now = performance.now();
     if (now - lastFpsUpdate > 500) {
         fps = Math.round(frameCount / ((now - lastFpsUpdate) / 1000));
-        if (ui.fpsDisplay) ui.fpsDisplay.textContent = fps + ' FPS';
+        const qualityLabel = qualityMode === 'high' ? 'HD' : (qualityMode === 'medium' ? 'SD' : 'LOW');
+        if (ui.fpsDisplay) ui.fpsDisplay.textContent = `${fps} FPS (${qualityLabel})`;
         frameCount = 0;
         lastFpsUpdate = now;
     }
@@ -2228,16 +2308,16 @@ function animate() {
     updatePhysics(deltaTime);
     
     // Render
-    if (renderMode === 'ultra' && !isMobile) {
-        // Modo ULTRA - acumular samples quando parado (só desktop)
+    if (renderMode === 'ultra' && qualityMode === 'high') {
+        // Modo ULTRA - acumular samples quando parado (só high quality)
         if (!isAnimating && !cameraMoving) {
             samplesAccumulated = Math.min(samplesAccumulated + 1, targetSamples);
             if (ui.samplesAccumulated) ui.samplesAccumulated.textContent = samplesAccumulated;
         }
     }
     
-    // Renderizar - no mobile usar render direto, no desktop usar composer
-    if (isMobile || !CONFIG.enablePostProcessing) {
+    // Renderizar - em modo low/medium usar render direto
+    if (!CONFIG.enablePostProcessing) {
         renderer.render(scene, camera);
     } else {
         composer.render();
