@@ -2262,6 +2262,43 @@
         }
     }
 
+    /* Otimizações de performance para mobile */
+    @media (max-width: 768px) {
+        /* Desativa animações pesadas */
+        .hero-glass-element,
+        .glass-shine {
+            display: none !important;
+        }
+        
+        /* Remove backdrop-filter em mobile (muito pesado) */
+        .header.scrolled {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(26, 54, 93, 0.98);
+        }
+        
+        /* Simplifica box-shadows */
+        .servico-card,
+        .tipo-card,
+        .avaliacao-card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Desativa animações de hover */
+        .servico-card:hover,
+        .tipo-card:hover {
+            transform: none;
+        }
+        
+        /* Força GPU acceleration nos elementos que fazem scroll */
+        .galeria-track,
+        .avaliacoes-track {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            will-change: transform;
+        }
+    }
+
     /* Preferência por movimento reduzido */
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
