@@ -2336,7 +2336,7 @@
         }
         
         .header.scrolled .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+            color: rgba(0, 0, 0, 0.9) !important;
         }
         
         .header.scrolled .hamburger,
@@ -5991,4 +5991,5 @@
             padding: 10px;
             font-size: 13px;
         }
+
     }
